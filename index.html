@@ -38,6 +38,31 @@ a,button{font-family:inherit;}
 .vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.55) 100%);}
 .section{position:relative;z-index:2;width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6vh 6vw;text-align:center;}
 
+/* ✨ LIGHT RAYS — เพิ่มใหม่ ให้ความรู้สึกพรีเมียม เวอร์วังขึ้น */
+.light-rays{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:screen;
+  background:
+    conic-gradient(from 200deg at 30% 20%, transparent 0deg, rgba(233,213,168,.10) 8deg, transparent 20deg, transparent 340deg),
+    conic-gradient(from 40deg at 80% 75%, transparent 0deg, rgba(224,180,168,.10) 10deg, transparent 25deg, transparent 335deg);
+  animation:raysDrift 18s ease-in-out infinite alternate;
+}
+@keyframes raysDrift{0%{opacity:.35;transform:scale(1) rotate(0deg);}100%{opacity:.6;transform:scale(1.08) rotate(3deg);}}
+
+/* ✨ GLITTER OVERLAY — เกล็ดกลิตเตอร์ลอยตลอดเวลาแบบเบา ๆ ทั่วจอ */
+.glitter-overlay{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
+.glitter-dot{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:radial-gradient(circle,#fff8e0,rgba(255,248,224,0));
+  box-shadow:0 0 6px 1px rgba(255,238,200,.7);
+  animation:glitterFloat linear infinite;
+}
+@keyframes glitterFloat{
+  0%{transform:translateY(0) translateX(0) scale(.6);opacity:0;}
+  10%{opacity:1;}
+  90%{opacity:1;}
+  100%{transform:translateY(-120vh) translateX(20px) scale(1.1);opacity:0;}
+}
+
 /* OPENING */
 #opening{position:fixed;inset:0;z-index:9998;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2rem;transition:opacity 1.1s ease, visibility 1.1s;}
 #opening.hidden{opacity:0;visibility:hidden;pointer-events:none;}
@@ -120,56 +145,36 @@ a,button{font-family:inherit;}
 #confetti-canvas{position:fixed;inset:0;z-index:600;pointer-events:none;width:100%;height:100%;}
 #countdown-fx-canvas{position:fixed;inset:0;z-index:9996;pointer-events:none;width:100%;height:100%;display:none;}
 #countdown-fx-canvas.active{display:block;}
+#fireworks-canvas{position:fixed;inset:0;z-index:700;pointer-events:none;width:100%;height:100%;}
 
-/* ============================================================
-   🎵 MUSIC PILL PLAYER — ฝังเพลงจาก Code โดยตรง (ไม่ต้องอัปโหลด)
-============================================================ */
+/* MUSIC PILL PLAYER */
 #music-widget{
   position:fixed;top:20px;right:20px;z-index:3000;
   display:flex;align-items:center;gap:.7rem;
-  padding:.55rem .9rem .55rem .55rem;
-  border-radius:40px;
+  padding:.55rem .9rem .55rem .55rem;border-radius:40px;
   background:linear-gradient(160deg,rgba(30,22,26,.85),rgba(15,10,14,.9));
   border:1px solid rgba(233,213,168,.18);
   box-shadow:0 12px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
-  backdrop-filter:blur(10px);
-  max-width:min(260px,60vw);
+  backdrop-filter:blur(10px);max-width:min(260px,60vw);
 }
 #music-toggle{
-  flex-shrink:0;width:38px;height:38px;border-radius:50%;
-  border:none;cursor:pointer;
-  background:radial-gradient(circle at 35% 30%,#f2a3ab,#e0728a);
-  color:#2a0f16;font-size:.95rem;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 14px rgba(224,114,138,.4);
-  transition:transform .25s;
+  flex-shrink:0;width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#f2a3ab,#e0728a);color:#2a0f16;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(224,114,138,.4);transition:transform .25s;
 }
 #music-toggle:hover{transform:scale(1.06);}
 #music-toggle .icon-play{display:inline-block;}
 #music-toggle .icon-pause{display:none;}
 #music-toggle.playing .icon-play{display:none;}
 #music-toggle.playing .icon-pause{display:inline-block;}
-
 .music-info{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1;}
-.music-title{
-  font-family:var(--sans);font-size:.72rem;font-weight:500;
-  color:var(--champagne);letter-spacing:.02em;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
+.music-title{font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--champagne);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .music-progress-row{display:flex;align-items:center;gap:6px;}
-.music-progress-bar{
-  flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.12);
-  overflow:hidden;position:relative;
-}
-.music-progress-fill{
-  position:absolute;top:0;left:0;height:100%;width:0%;
-  background:linear-gradient(90deg,var(--rose),var(--pink));
-  border-radius:4px;transition:width .2s linear;
-}
+.music-progress-bar{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden;position:relative;}
+.music-progress-fill{position:absolute;top:0;left:0;height:100%;width:0%;background:linear-gradient(90deg,var(--rose),var(--pink));border-radius:4px;transition:width .2s linear;}
 .viz{display:flex;gap:2px;align-items:flex-end;height:12px;flex-shrink:0;}
 .viz span{width:2px;background:var(--pink);border-radius:1px;height:4px;}
-#music-toggle.playing ~ .music-info .viz span,
-.music-info .viz.playing span{animation:bar 1s ease-in-out infinite;}
+.viz.playing span{animation:bar 1s ease-in-out infinite;}
 .viz span:nth-child(2){animation-delay:.15s;}
 .viz span:nth-child(3){animation-delay:.3s;}
 @keyframes bar{0%,100%{height:4px;}50%{height:12px;}}
@@ -196,6 +201,8 @@ footer.credit{position:relative;z-index:2;padding:3rem 0;text-align:center;font-
 <body>
 
 <div id="bg-universe"><canvas id="stars-canvas"></canvas></div>
+<div class="light-rays"></div>
+<div class="glitter-overlay" id="glitterOverlay"></div>
 <div class="noise-overlay"></div>
 <div class="vignette"></div>
 
@@ -205,8 +212,9 @@ footer.credit{position:relative;z-index:2;padding:3rem 0;text-align:center;font-
 <canvas id="fx-canvas"></canvas>
 <canvas id="confetti-canvas"></canvas>
 <canvas id="countdown-fx-canvas"></canvas>
+<canvas id="fireworks-canvas"></canvas>
 
-<!-- ================= 🎵 MUSIC PILL PLAYER (ฝังเพลงจาก Code) ================= -->
+<!-- ================= 🎵 MUSIC PILL PLAYER ================= -->
 <div id="music-widget">
   <button id="music-toggle" aria-label="toggle music">
     <span class="icon-play">▶</span>
@@ -255,7 +263,7 @@ footer.credit{position:relative;z-index:2;padding:3rem 0;text-align:center;font-
 
 <!-- ================= CAKE ================= -->
 <section class="section" id="cake-section">
-  <p class="intro-text" data-scroll>ยินดีด้วยน้าอายุ 19 บริบูรณ์🕯️</p>
+  <p class="intro-text" data-scroll>ยินดีด้วยน้าอายุ 19 บริบูรณ์ 🕯️</p>
   <div class="cake-wrap" id="cakeWrap" data-scroll>
     <div class="cake">
       <div class="candles" id="candles">
@@ -282,7 +290,7 @@ footer.credit{position:relative;z-index:2;padding:3rem 0;text-align:center;font-
 
 <!-- ================= LOVE LETTER ================= -->
 <section class="section" id="letter-section">
-  <p class="letter-title" data-scroll>A Letter For You</p>
+  <p class="letter-title" data-scroll>เค้ามีอะไรจึงจะบอกอ้วนน</p>
   <div class="envelope-wrap" id="envelopeWrap" data-scroll>
     <div class="envelope-body">
       <div class="envelope-flap"></div>
@@ -311,10 +319,10 @@ footer.credit{position:relative;z-index:2;padding:3rem 0;text-align:center;font-
 
 <script>
 /* ================================================================
-   ⚙️ 1. CONFIGURATION — แก้ไขได้จากจุดเดียวตรงนี้
+   ⚙️ 1. CONFIGURATION
 ================================================================ */
 const birthdayConfig = {
-  girlfriendName: "นางสาวกัลยกร นันตะกุน",
+  girlfriendName: "กัลยกร นันตะกุน",
   nickname: "Toon",
   birthday: "27 กันยายน",
   loveLetterGreeting: "ถึงคนพิเศษของเค้า...",
@@ -346,12 +354,8 @@ const birthdayConfig = {
 รักเธอมากๆนะอ้วน ❤️ ขอให้เธอมีความสุขมากกว่าที่ผ่านมา และมีรอยยิ้มแบบนี้ไปนานๆ เลยนะ
 
 — ด้วยรักเสมอ`,
-
-  /* 🎵 เพลงฝังใน Code โดยตรง — ไม่ต้องให้ผู้ใช้เลือกไฟล์เอง
-     👉 นำไฟล์ mp3 จริงไปวางที่ path นี้: assets/music/รักหนิงหนิงๆ.mp3
-     👉 หรือเปลี่ยน path ให้ชี้ไปยังไฟล์เพลงอื่นที่ต้องการ */
-  music: "music/PUN รักให้เธอได้รู้ Proof.mp3",   // ⬅️ path ของไฟล์เพลง (mp3) ที่จะเล่น
-  musicTitle: "รักหนิงหนิงๆ"   // ⬅️ ชื่อเพลงที่แสดงบน Pill Player มุมขวาบน
+  music: "music/PUN รักให้เธอได้รู้ Proof.mp3",
+  musicTitle: "รักหนิงหนิงๆ"
 };
 
 /* ================================================================
@@ -374,7 +378,29 @@ document.getElementById('musicTitleText').textContent = birthdayConfig.musicTitl
 document.body.style.overflow = 'hidden';
 
 /* ================================================================
-   🎵 3. MUSIC PILL PLAYER LOGIC (Play/Pause + Progress bar + Visualizer)
+   ✨ 3. GLITTER OVERLAY — เกล็ดกลิตเตอร์ลอยตลอดเวลา (อลังการขึ้น)
+================================================================ */
+function spawnGlitterField(){
+  const container = document.getElementById('glitterOverlay');
+  const count = isTouch ? 22 : 45; // ⬅️ เพิ่มจำนวนกลิตเตอร์ให้ดูหรูขึ้น
+  for(let i=0;i<count;i++){
+    const dot = document.createElement('div');
+    dot.className = 'glitter-dot';
+    const size = Math.random()*3+2;
+    dot.style.width = size+'px';
+    dot.style.height = size+'px';
+    dot.style.left = Math.random()*100+'vw';
+    dot.style.bottom = -Math.random()*50+'px';
+    const duration = Math.random()*10+10;
+    dot.style.animationDuration = duration+'s';
+    dot.style.animationDelay = (Math.random()*10)+'s';
+    container.appendChild(dot);
+  }
+}
+if (!reducedMotion) spawnGlitterField();
+
+/* ================================================================
+   🎵 4. MUSIC PILL PLAYER LOGIC
 ================================================================ */
 const musicBtn = document.getElementById('music-toggle');
 const vizIcon = document.getElementById('vizIcon');
@@ -387,7 +413,7 @@ function toggleMusic(forcePlay){
       musicPlaying = true;
       musicBtn.classList.add('playing');
       vizIcon.classList.add('playing');
-    }).catch(()=>{ /* Browser block autoplay — จะเล่นได้ทันทีที่ผู้ใช้กดปุ่มเอง */ });
+    }).catch(()=>{});
   } else {
     music.pause();
     musicPlaying = false;
@@ -396,16 +422,13 @@ function toggleMusic(forcePlay){
   }
 }
 musicBtn.addEventListener('click', ()=> toggleMusic(false));
-
-// อัปเดตแถบ Progress ตามเวลาเพลงที่เล่นอยู่
 music.addEventListener('timeupdate', ()=>{
   if (!music.duration) return;
-  const pct = (music.currentTime / music.duration) * 100;
-  progressFill.style.width = pct + '%';
+  progressFill.style.width = (music.currentTime / music.duration) * 100 + '%';
 });
 
 /* ================================================================
-   4. STARFIELD CANVAS
+   5. STARFIELD CANVAS (เพิ่มดาว + shooting star ถี่ขึ้น)
 ================================================================ */
 const starsCanvas = document.getElementById('stars-canvas');
 const sctx = starsCanvas.getContext('2d');
@@ -413,22 +436,22 @@ let stars = [], shootingStars = [];
 function resizeStars(){ starsCanvas.width = window.innerWidth; starsCanvas.height = document.body.scrollHeight; }
 function initStars(){
   resizeStars();
-  const count = isTouch ? 90 : 180;
+  const count = isTouch ? 130 : 260; // ⬅️ เพิ่มจำนวนดาวให้ฟ้าอลังการขึ้น
   stars = Array.from({length:count},()=>({
     x:Math.random()*starsCanvas.width, y:Math.random()*starsCanvas.height,
-    r:Math.random()*1.4+.2, tw:Math.random()*Math.PI*2, speed:Math.random()*.015+.005
+    r:Math.random()*1.6+.2, tw:Math.random()*Math.PI*2, speed:Math.random()*.02+.006
   }));
 }
 function spawnShootingStar(){
   if (reducedMotion) return;
-  shootingStars.push({x:Math.random()*starsCanvas.width*.7,y:Math.random()*starsCanvas.height*.3,len:Math.random()*120+80,speed:Math.random()*8+8,life:0,angle:Math.PI/5});
+  shootingStars.push({x:Math.random()*starsCanvas.width*.7,y:Math.random()*starsCanvas.height*.3,len:Math.random()*140+90,speed:Math.random()*9+9,life:0,angle:Math.PI/5});
 }
-setInterval(spawnShootingStar, 4200);
+setInterval(spawnShootingStar, 2600); // ⬅️ ถี่ขึ้นจากเดิม 4200ms
 function drawStars(){
   sctx.clearRect(0,0,starsCanvas.width,starsCanvas.height);
   stars.forEach(s=>{
     s.tw += s.speed;
-    const alpha = .4 + Math.sin(s.tw)*.35;
+    const alpha = .4 + Math.sin(s.tw)*.4;
     sctx.beginPath();
     sctx.fillStyle = `rgba(245,242,236,${Math.max(alpha,.15)})`;
     sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
@@ -437,8 +460,8 @@ function drawStars(){
   shootingStars.forEach((s,i)=>{
     s.life++; s.x += Math.cos(s.angle)*s.speed; s.y += Math.sin(s.angle)*s.speed;
     const grad = sctx.createLinearGradient(s.x,s.y,s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
-    grad.addColorStop(0,'rgba(255,255,255,.9)'); grad.addColorStop(1,'rgba(255,255,255,0)');
-    sctx.strokeStyle = grad; sctx.lineWidth = 1.4;
+    grad.addColorStop(0,'rgba(255,255,255,.95)'); grad.addColorStop(1,'rgba(255,255,255,0)');
+    sctx.strokeStyle = grad; sctx.lineWidth = 1.6;
     sctx.beginPath(); sctx.moveTo(s.x,s.y);
     sctx.lineTo(s.x-Math.cos(s.angle)*s.len, s.y-Math.sin(s.angle)*s.len);
     sctx.stroke();
@@ -450,7 +473,7 @@ initStars(); drawStars();
 window.addEventListener('resize', initStars);
 
 /* ================================================================
-   5. CUSTOM CURSOR
+   6. CUSTOM CURSOR
 ================================================================ */
 if (!isTouch){
   const dot = document.getElementById('cursorDot'), ring = document.getElementById('cursorRing');
@@ -469,38 +492,38 @@ if (!isTouch){
 }
 
 /* ================================================================
-   6. CURSOR PARTICLES + HEART BURST
+   7. CURSOR PARTICLES + HEART BURST (ใหญ่ขึ้น เยอะขึ้น)
 ================================================================ */
 const fxCanvas = document.getElementById('fx-canvas');
 const fctx = fxCanvas.getContext('2d');
 function fitFxCanvas(){ fxCanvas.width=window.innerWidth; fxCanvas.height=window.innerHeight; }
 fitFxCanvas(); window.addEventListener('resize', fitFxCanvas);
 let fxParticles = [];
-const MAX_FX = isTouch ? 40 : 90;
+const MAX_FX = isTouch ? 60 : 130; // ⬅️ เพิ่ม cap ให้รองรับ particle มากขึ้น
 function spawnCursorParticle(x,y){
   if (fxParticles.length > MAX_FX) return;
-  if (Math.random() > .35) return;
+  if (Math.random() > .3) return;
   fxParticles.push({x,y,vy:-Math.random()*1-.4,vx:(Math.random()-.5)*.6,life:0,max:60,type:Math.random()>.5?'heart':'star',size:Math.random()*6+5});
 }
-function burstHearts(x,y,count=14){
+function burstHearts(x,y,count=24){ // ⬅️ เดิม default 14 → เพิ่มเป็น 24 ให้ดูอลังการขึ้น
   for(let i=0;i<count;i++){
-    fxParticles.push({x,y,vx:(Math.random()-.5)*4,vy:-(Math.random()*4+1),life:0,max:70,type:i%2===0?'heart':'star',size:Math.random()*10+10,burst:true});
+    fxParticles.push({x,y,vx:(Math.random()-.5)*6,vy:-(Math.random()*6+1.5),life:0,max:80,type:i%3===0?'heart':(i%3===1?'star':'sparkle'),size:Math.random()*12+11,burst:true});
   }
 }
 document.addEventListener('click', e=>{
   if (e.target.closest('#tapBtn,#music-toggle,.letter-close,.reveal-cta')) return;
-  burstHearts(e.clientX, e.clientY);
+  burstHearts(e.clientX, e.clientY, 18);
 });
 function drawFx(){
   fctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
   fxParticles.forEach((p,i)=>{
     p.life++; p.x += p.vx; p.y += p.vy;
-    if (p.burst) p.vy += .06;
+    if (p.burst) p.vy += .07;
     const alpha = 1 - p.life/p.max;
     fctx.globalAlpha = Math.max(alpha,0);
     fctx.font = `${p.size}px serif`;
-    fctx.fillStyle = p.type==='heart' ? '#e0b4a8' : '#e9d5a8';
-    fctx.fillText(p.type==='heart'?'♡':'✦', p.x, p.y);
+    fctx.fillStyle = p.type==='heart' ? '#e0b4a8' : (p.type==='sparkle' ? '#fff6d8' : '#e9d5a8');
+    fctx.fillText(p.type==='heart'?'♡':(p.type==='sparkle'?'✧':'✦'), p.x, p.y);
     if (p.life>p.max) fxParticles.splice(i,1);
   });
   fctx.globalAlpha=1;
@@ -509,17 +532,24 @@ function drawFx(){
 drawFx();
 
 /* ================================================================
-   7. CONFETTI
+   8. CONFETTI — เพิ่มรูปทรงและความหนาแน่น (สับสไตล์ เวอร์ขึ้น)
 ================================================================ */
 const confettiCanvas = document.getElementById('confetti-canvas');
 const cctx = confettiCanvas.getContext('2d');
 function fitConfetti(){ confettiCanvas.width=window.innerWidth; confettiCanvas.height=window.innerHeight; }
 fitConfetti(); window.addEventListener('resize', fitConfetti);
 let confetti = [];
-const colors = ['#e9d5a8','#e0b4a8','#f5f2ec','#e8b9c4'];
+const colors = ['#e9d5a8','#e0b4a8','#f5f2ec','#e8b9c4','#fff3c4','#d9a993'];
 function launchConfetti(count=90){
   for(let i=0;i<count;i++){
-    confetti.push({x:Math.random()*confettiCanvas.width,y:-20-Math.random()*200,vx:(Math.random()-.5)*3,vy:Math.random()*2+2,size:Math.random()*6+4,rot:Math.random()*360,vr:(Math.random()-.5)*8,color:colors[Math.floor(Math.random()*colors.length)],life:0});
+    confetti.push({
+      x:Math.random()*confettiCanvas.width,y:-20-Math.random()*260,
+      vx:(Math.random()-.5)*3.4,vy:Math.random()*2.4+2,
+      size:Math.random()*7+4,rot:Math.random()*360,vr:(Math.random()-.5)*9,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      shape:Math.random()>.6?'circle':'rect',
+      life:0
+    });
   }
 }
 function drawConfetti(){
@@ -527,17 +557,92 @@ function drawConfetti(){
   confetti.forEach((c,i)=>{
     c.life++; c.x+=c.vx; c.y+=c.vy; c.rot+=c.vr;
     cctx.save(); cctx.translate(c.x,c.y); cctx.rotate(c.rot*Math.PI/180);
-    cctx.globalAlpha = Math.max(1-c.life/260,0);
-    cctx.fillStyle=c.color; cctx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.4);
+    cctx.globalAlpha = Math.max(1-c.life/280,0);
+    cctx.fillStyle=c.color;
+    if (c.shape==='circle'){
+      cctx.beginPath(); cctx.arc(0,0,c.size/2,0,Math.PI*2); cctx.fill();
+    } else {
+      cctx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.4);
+    }
     cctx.restore();
-    if (c.y>confettiCanvas.height+40 || c.life>260) confetti.splice(i,1);
+    if (c.y>confettiCanvas.height+40 || c.life>280) confetti.splice(i,1);
   });
   requestAnimationFrame(drawConfetti);
 }
 drawConfetti();
 
 /* ================================================================
-   8. COUNTDOWN SPARK CANVAS
+   🎆 9. FIREWORKS SYSTEM — ใหม่! พลุจริงระเบิดเต็มจอ (สำหรับ Final Surprise)
+================================================================ */
+const fwCanvas = document.getElementById('fireworks-canvas');
+const fwctx = fwCanvas.getContext('2d');
+function fitFwCanvas(){ fwCanvas.width=window.innerWidth; fwCanvas.height=window.innerHeight; }
+fitFwCanvas(); window.addEventListener('resize', fitFwCanvas);
+let fireworkParticles = [];
+const fwColors = ['#e9d5a8','#e0b4a8','#f5f2ec','#e8b9c4','#fff3c4','#ffd9e8','#d9a993'];
+
+function launchFirework(x, y, particleCount = 60){
+  const baseHue = fwColors[Math.floor(Math.random()*fwColors.length)];
+  for(let i=0;i<particleCount;i++){
+    const angle = (Math.PI*2/particleCount)*i + Math.random()*.2;
+    const speed = Math.random()*5+3;
+    fireworkParticles.push({
+      x, y,
+      vx:Math.cos(angle)*speed,
+      vy:Math.sin(angle)*speed,
+      life:0, max:Math.random()*50+55,
+      size:Math.random()*2.2+1.4,
+      color:baseHue,
+      trail:[]
+    });
+  }
+}
+// ยิงพลุหลายลูกสุ่มตำแหน่ง กระจายเต็มจอ
+function fireworksShow(rounds = 5, intervalMs = 380){
+  let count = 0;
+  const timer = setInterval(()=>{
+    const x = Math.random()*window.innerWidth*.8 + window.innerWidth*.1;
+    const y = Math.random()*window.innerHeight*.45 + window.innerHeight*.08;
+    launchFirework(x, y, 55 + Math.floor(Math.random()*25));
+    count++;
+    if (count >= rounds) clearInterval(timer);
+  }, intervalMs);
+}
+function drawFireworks(){
+  fwctx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+  fireworkParticles.forEach((p,i)=>{
+    p.life++;
+    p.trail.push({x:p.x,y:p.y});
+    if (p.trail.length>4) p.trail.shift();
+    p.x += p.vx; p.y += p.vy;
+    p.vy += .045; // gravity
+    p.vx *= .985; p.vy *= .99;
+    const alpha = Math.max(1 - p.life/p.max, 0);
+    fwctx.globalAlpha = alpha;
+    fwctx.strokeStyle = p.color;
+    fwctx.lineWidth = p.size;
+    fwctx.beginPath();
+    if (p.trail.length>0){
+      fwctx.moveTo(p.trail[0].x, p.trail[0].y);
+      p.trail.forEach(t=> fwctx.lineTo(t.x,t.y));
+    }
+    fwctx.lineTo(p.x,p.y);
+    fwctx.stroke();
+    fwctx.beginPath();
+    fwctx.fillStyle = p.color;
+    fwctx.shadowColor = p.color;
+    fwctx.shadowBlur = 10;
+    fwctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    fwctx.fill();
+    if (p.life>p.max) fireworkParticles.splice(i,1);
+  });
+  fwctx.globalAlpha=1;
+  requestAnimationFrame(drawFireworks);
+}
+drawFireworks();
+
+/* ================================================================
+   10. COUNTDOWN SPARK CANVAS
 ================================================================ */
 const cdCanvas = document.getElementById('countdown-fx-canvas');
 const cdctx = cdCanvas.getContext('2d');
@@ -546,8 +651,8 @@ fitCdCanvas(); window.addEventListener('resize', fitCdCanvas);
 let cdParticles = [];
 function spawnCdBurst(cx, cy, count){
   for(let i=0;i<count;i++){
-    const angle = Math.random()*Math.PI*2, speed = Math.random()*4+1.5;
-    cdParticles.push({x:cx,y:cy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:0,max:Math.random()*70+50,size:Math.random()*3+1.4,type:Math.random()>.65?'heart':'dot',hue:Math.random()>.5?'#e9d5a8':'#e0b4a8'});
+    const angle = Math.random()*Math.PI*2, speed = Math.random()*4.5+1.5;
+    cdParticles.push({x:cx,y:cy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:0,max:Math.random()*75+55,size:Math.random()*3.2+1.5,type:Math.random()>.6?'heart':'dot',hue:Math.random()>.5?'#e9d5a8':'#e0b4a8'});
   }
 }
 function drawCdFx(){
@@ -566,7 +671,7 @@ function drawCdFx(){
 drawCdFx();
 
 /* ================================================================
-   9. OPENING SEQUENCE + MUSIC AUTOSTART ON TAP
+   11. OPENING SEQUENCE + MUSIC AUTOSTART
 ================================================================ */
 gsap.to('#openSub', {opacity:1, duration:1.4, delay:.6});
 gsap.to('#tapBtn', {opacity:1, duration:1.2, delay:1.4});
@@ -574,7 +679,7 @@ gsap.to('#tapBtn', {opacity:1, duration:1.2, delay:1.4});
 document.getElementById('tapBtn').addEventListener('click', ()=>{
   const flash = document.getElementById('flash');
   gsap.to(flash, {opacity:1, duration:.15, onComplete:()=>{ gsap.to(flash, {opacity:0, duration:.6}); }});
-  toggleMusic(true); // ▶️ เพลงเริ่มเล่นทันทีตอนกด TAP TO OPEN
+  toggleMusic(true);
   gsap.to('#opening', {opacity:0, duration:.9, delay:.3, onComplete:()=>{
     document.getElementById('opening').classList.add('hidden');
     playCountdownReveal();
@@ -582,7 +687,7 @@ document.getElementById('tapBtn').addEventListener('click', ()=>{
 });
 
 /* ================================================================
-   🔢 10. COUNTDOWN → NAME REVEAL (ทุกเลข 1 วินาทีเท่ากันเป๊ะ)
+   🔢 12. COUNTDOWN → GRAND NAME REVEAL (เวอร์ขึ้น: ยิงพลุตอนเผยชื่อ)
 ================================================================ */
 function playCountdownReveal(){
   const screen = document.getElementById('countdown-screen');
@@ -601,7 +706,7 @@ function playCountdownReveal(){
   numbers.forEach((n)=>{
     tl.call(()=>{
         numEl.textContent = n;
-        spawnCdBurst(window.innerWidth/2, window.innerHeight/2, 18);
+        spawnCdBurst(window.innerWidth/2, window.innerHeight/2, 24);
       })
       .fromTo(numEl, {opacity:0, scale:.5, filter:'blur(8px)'},
         {opacity:1, scale:1, filter:'blur(0px)', duration:.25, ease:'back.out(2)'})
@@ -612,9 +717,10 @@ function playCountdownReveal(){
   });
 
   tl.call(()=>{
-      spawnCdBurst(window.innerWidth/2, window.innerHeight/2, 70);
-      launchConfetti(60);
-      burstHearts(window.innerWidth/2, window.innerHeight/2, 20);
+      spawnCdBurst(window.innerWidth/2, window.innerHeight/2, 90);
+      launchConfetti(110);
+      burstHearts(window.innerWidth/2, window.innerHeight/2, 30);
+      launchFirework(window.innerWidth/2, window.innerHeight/2, 70); // ⬅️ พลุตอนชื่อโผล่
       gsap.to(ring, {opacity:0, scale:1.8, duration:1, ease:'power2.out'});
     })
     .fromTo(nameWrap, {opacity:0, scale:.75, filter:'blur(14px)'},
@@ -622,8 +728,11 @@ function playCountdownReveal(){
     .to('.reveal-name-text', {backgroundPosition:'200% center', duration:5, repeat:-1, ease:'linear'}, '<')
     .call(()=>{
       const cx = window.innerWidth/2, cy = window.innerHeight/2;
-      [0,1,2,3].forEach(i=>{
-        gsap.delayedCall(i*.5, ()=> spawnCdBurst(cx + (Math.random()-.5)*300, cy + (Math.random()-.5)*120, 8));
+      [0,1,2,3,4].forEach(i=>{
+        gsap.delayedCall(i*.4, ()=>{
+          spawnCdBurst(cx + (Math.random()-.5)*340, cy + (Math.random()-.5)*140, 10);
+          if (i%2===0) launchFirework(cx + (Math.random()-.5)*400, cy - 100 - Math.random()*100, 40);
+        });
       });
     })
     .to(cta, {opacity:1, duration:1}, '+=.6');
@@ -634,7 +743,7 @@ function playCountdownReveal(){
 function enterMainSite(){
   const screen = document.getElementById('countdown-screen');
   const cdCanvasEl = document.getElementById('countdown-fx-canvas');
-  burstHearts(window.innerWidth/2, window.innerHeight/2, 24);
+  burstHearts(window.innerWidth/2, window.innerHeight/2, 30);
   gsap.to(screen, {opacity:0, duration:1, onComplete:()=>{
     screen.classList.remove('active');
     cdCanvasEl.classList.remove('active');
@@ -645,7 +754,7 @@ function enterMainSite(){
 }
 
 /* ================================================================
-   11. HERO INTRO
+   13. HERO INTRO
 ================================================================ */
 function playHeroIntro(){
   gsap.fromTo('#hero [data-reveal]', {opacity:0, y:30, filter:'blur(6px)'},
@@ -654,7 +763,7 @@ function playHeroIntro(){
 }
 
 /* ================================================================
-   12. SCROLL REVEAL
+   14. SCROLL REVEAL
 ================================================================ */
 document.querySelectorAll('[data-scroll]').forEach(el=>{
   gsap.fromTo(el, {opacity:0, y:50, filter:'blur(8px)'},{
@@ -664,7 +773,7 @@ document.querySelectorAll('[data-scroll]').forEach(el=>{
 });
 
 /* ================================================================
-   🎂 13. CAKE INTERACTION
+   🎂 15. CAKE INTERACTION (เวอร์ขึ้น: confetti+fireworks รวมกัน)
 ================================================================ */
 const cakeWrap = document.getElementById('cakeWrap');
 const wishText = document.getElementById('wishText');
@@ -674,18 +783,19 @@ cakeWrap.addEventListener('click', ()=>{
   cakeBlown = true;
   document.querySelectorAll('.flame').forEach((f,i)=>{ gsap.to(f,{opacity:0, duration:.4, delay:i*.15}); });
   gsap.to('body',{filter:'brightness(.75)', duration:.5, yoyo:true, repeat:1});
-  launchConfetti(70);
-  burstHearts(window.innerWidth/2, window.innerHeight*0.4);
+  launchConfetti(110);
+  burstHearts(window.innerWidth/2, window.innerHeight*0.4, 26);
+  launchFirework(window.innerWidth/2, window.innerHeight*0.35, 60);
   gsap.timeline()
     .to(wishText,{text:'Make a wish...', opacity:1, duration:.2, delay:.3})
     .to(wishText,{opacity:0, duration:.6, delay:1.6})
     .to(wishText,{text:'I hope all your wishes come true.', opacity:1, duration:.2})
     .to(wishText,{opacity:.85, duration:.4});
 });
-cakeWrap.addEventListener('mouseenter', ()=>{ if (!cakeBlown) burstHearts(window.innerWidth/2, window.innerHeight*0.42); });
+cakeWrap.addEventListener('mouseenter', ()=>{ if (!cakeBlown) burstHearts(window.innerWidth/2, window.innerHeight*0.42, 10); });
 
 /* ================================================================
-   14. LINE REVEAL — MESSAGE
+   16. LINE REVEAL — MESSAGE
 ================================================================ */
 const messageLines = [
   "ในวันเกิดของเธอ","เค้าอยากให้เธอรู้ว่า...","ขอบคุณที่เข้ามาเป็นส่วนหนึ่งในชีวิตเค้า",
@@ -703,14 +813,14 @@ ScrollTrigger.create({
 });
 
 /* ================================================================
-   💌 15. LOVE LETTER
+   💌 17. LOVE LETTER
 ================================================================ */
 const envelopeWrap = document.getElementById('envelopeWrap');
 const letterPaper = document.getElementById('letterPaper');
 const letterBackdrop = document.getElementById('letterBackdrop');
 envelopeWrap.addEventListener('click', ()=>{
   envelopeWrap.classList.add('open');
-  burstHearts(window.innerWidth/2, window.innerHeight/2);
+  burstHearts(window.innerWidth/2, window.innerHeight/2, 20);
   setTimeout(()=>{
     letterBackdrop.classList.add('show'); letterPaper.classList.add('show');
     gsap.fromTo(letterPaper, {scale:.4, opacity:0, y:40},{scale:1, opacity:1, y:0, duration:.8, ease:'back.out(1.4)'});
@@ -725,7 +835,7 @@ document.getElementById('letterClose').addEventListener('click', closeLetter);
 letterBackdrop.addEventListener('click', closeLetter);
 
 /* ================================================================
-   🎁 16. FINAL SURPRISE
+   🎁 18. FINAL SURPRISE — เวอร์สุด! ยิงพลุต่อเนื่องหลายชุด
 ================================================================ */
 ScrollTrigger.create({
   trigger:'#final-section', start:'top 55%', once:true,
@@ -733,17 +843,30 @@ ScrollTrigger.create({
     const tl = gsap.timeline();
     tl.to('#finalWait',{opacity:1, duration:1})
       .to('#finalWait',{opacity:0, duration:.8, delay:1.4})
-      .call(()=>{ launchConfetti(140); burstHearts(window.innerWidth/2, window.innerHeight/2, 22); })
+      .call(()=>{
+        launchConfetti(180);
+        burstHearts(window.innerWidth/2, window.innerHeight/2, 34);
+        fireworksShow(6, 300); // ⬅️ ยิงพลุ 6 ลูกกระจายทั่วจอทันทีที่ I LOVE YOU ปรากฏ
+      })
       .fromTo('#finalLove',{opacity:0, scale:.7},{opacity:1, scale:1, duration:1, ease:'back.out(1.6)'})
       .to('#finalName',{opacity:1, duration:1}, '+=.3')
+      .call(()=>{ fireworksShow(4, 350); }) // ⬅️ ยิงพลุรอบสองตอนชื่อโผล่
       .to('#finalSub',{opacity:1, duration:1}, '+=.2')
-      .call(()=>{ launchConfetti(90); })
-      .to('#foreverText',{opacity:1, duration:1.2}, '+=.4');
+      .call(()=>{ launchConfetti(140); fireworksShow(5, 320); }) // ⬅️ พลุชุดสุดท้าย
+      .to('#foreverText',{opacity:1, duration:1.2}, '+=.4')
+      .call(()=>{
+        // ✨ ปิดท้ายด้วยพลุต่อเนื่องเบา ๆ ทุก 2 วิ ให้ฉากจบดูมีชีวิตตลอด
+        setInterval(()=>{
+          const x = Math.random()*window.innerWidth*.8+window.innerWidth*.1;
+          const y = Math.random()*window.innerHeight*.4+window.innerHeight*.1;
+          launchFirework(x, y, 35);
+        }, 2200);
+      }, [], '+=.6');
   }
 });
 
 /* ================================================================
-   17. RESIZE
+   19. RESIZE
 ================================================================ */
 window.addEventListener('load', ()=> setTimeout(initStars, 400));
 document.documentElement.style.maxWidth = '100vw';
