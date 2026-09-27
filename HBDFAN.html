@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>A Little Universe Made For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Poppins:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --black:#05060a; --navy:#0a0f1e; --navy2:#0e1530; --white:#f5f2ec;
+  --champagne:#e9d5a8; --rose:#e0b4a8; --rosegold:#d9a993; --pink:#e8b9c4;
+  --glow:rgba(224,180,168,.55);
+  --serif:'Playfair Display', serif; --script:'Cormorant Garamond', serif; --sans:'Poppins', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--black);color:var(--white);overflow-x:hidden;font-family:var(--sans);width:100%;scroll-behavior:smooth;}
+::selection{background:var(--rose);color:#000;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--rose),var(--champagne));border-radius:10px;}
+::-webkit-scrollbar-track{background:var(--black);}
+a,button{font-family:inherit;}
+
+/* CURSOR */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s,background .25s,opacity .3s;}
+.cursor-dot{width:6px;height:6px;background:var(--champagne);}
+.cursor-ring{width:32px;height:32px;border:1px solid rgba(233,213,168,.5);}
+.cursor-ring.hover{width:70px;height:70px;background:rgba(224,180,168,.12);border-color:var(--rose);display:flex;align-items:center;justify-content:center;}
+.cursor-ring.hover::before{content:attr(data-label);font-size:10px;letter-spacing:1px;color:var(--champagne);font-family:var(--sans);}
+@media (hover:none), (max-width:768px){.cursor-dot,.cursor-ring{display:none;}}
+
+/* BG */
+#bg-universe{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 20% 10%, rgba(224,180,168,.08), transparent 60%),radial-gradient(ellipse at 80% 80%, rgba(217,169,147,.10), transparent 55%),linear-gradient(180deg,#05060a 0%,#0a0f1e 45%,#0e1530 100%);overflow:hidden;}
+#stars-canvas{position:absolute;inset:0;width:100%;height:100%;}
+.noise-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.55) 100%);}
+.section{position:relative;z-index:2;width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6vh 6vw;text-align:center;}
+
+/* OPENING */
+#opening{position:fixed;inset:0;z-index:9998;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2rem;transition:opacity 1.1s ease, visibility 1.1s;}
+#opening.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.open-sub{font-family:var(--script);font-style:italic;font-size:1.05rem;letter-spacing:.08em;color:#c9c3b8;opacity:0;}
+.tap-btn{position:relative;width:150px;height:150px;border-radius:50%;border:1px solid rgba(233,213,168,.4);display:flex;align-items:center;justify-content:center;font-family:var(--sans);letter-spacing:.25em;font-size:.72rem;color:var(--champagne);cursor:pointer;background:rgba(255,255,255,.02);opacity:0;backdrop-filter:blur(4px);}
+.tap-ring{position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(224,180,168,.35);animation:ringPulse 2.6s ease-in-out infinite;}
+.tap-ring.d2{animation-delay:.9s;}
+@keyframes ringPulse{0%{transform:scale(.85);opacity:.7;}70%{transform:scale(1.5);opacity:0;}100%{opacity:0;}}
+#flash{position:fixed;inset:0;background:#fff;z-index:9999;opacity:0;pointer-events:none;}
+
+/* COUNTDOWN */
+#countdown-screen{position:fixed;inset:0;z-index:9997;background:radial-gradient(ellipse at center,#0e0a16 0%,#020103 80%);display:none;align-items:center;justify-content:center;overflow:hidden;}
+#countdown-screen.active{display:flex;}
+.countdown-glow-ring{position:absolute;width:340px;height:340px;border-radius:50%;border:1px solid rgba(224,180,168,.25);box-shadow:0 0 80px rgba(224,180,168,.15), inset 0 0 60px rgba(224,180,168,.08);display:flex;align-items:center;justify-content:center;}
+.countdown-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;text-align:center;line-height:1;font-family:var(--serif);font-weight:700;font-size:clamp(6rem,22vw,13rem);background:linear-gradient(180deg,#f5f2ec,#e9d5a8,#e0b4a8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 60px rgba(224,180,168,.4);opacity:0;}
+.reveal-name-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.6rem;opacity:0;}
+.reveal-name-eyebrow{font-family:var(--sans);font-size:.72rem;letter-spacing:.4em;color:var(--rose);opacity:.9;}
+.reveal-name-text{font-family:var(--script);font-style:italic;font-weight:600;font-size:clamp(2.8rem,10vw,6.5rem);background:linear-gradient(90deg,#f5f2ec,#e9d5a8,#e0b4a8,#f5f2ec);background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 50px rgba(224,180,168,.5), 0 0 100px rgba(224,180,168,.3);letter-spacing:.03em;}
+.reveal-cta{margin-top:2.2rem;font-size:.68rem;letter-spacing:.3em;color:#cfc9be;opacity:0;cursor:pointer;border:1px solid rgba(233,213,168,.4);padding:.9rem 2.2rem;border-radius:40px;background:rgba(255,255,255,.02);backdrop-filter:blur(4px);}
+.reveal-cta:hover{border-color:var(--rose);}
+
+/* HERO */
+#hero .eyebrow{font-family:var(--sans);font-size:.7rem;letter-spacing:.35em;color:var(--rose);opacity:.85;margin-bottom:1.4rem;}
+#hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(2.6rem,9vw,7.2rem);letter-spacing:.05em;line-height:1.02;background:linear-gradient(90deg,#f5f2ec,#e9d5a8,#e0b4a8,#f5f2ec);background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;}
+#hero .sub2{margin-top:1.6rem;font-family:var(--sans);font-weight:300;font-size:.85rem;letter-spacing:.3em;color:#cfc9be;}
+#hero .her-name{margin-top:1.6rem;font-family:var(--script);font-style:italic;font-weight:500;font-size:clamp(2.2rem,6vw,4.2rem);color:var(--champagne);text-shadow:0 0 25px var(--glow),0 0 60px rgba(224,180,168,.35);}
+.scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.3em;color:#a8a29b;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.scroll-line{width:1px;height:34px;background:linear-gradient(var(--champagne),transparent);animation:scrollDown 1.8s ease-in-out infinite;}
+@keyframes scrollDown{0%{transform:scaleY(0);opacity:0;}40%{transform:scaleY(1);opacity:1;}100%{transform:scaleY(0);opacity:0;transform-origin:bottom;}}
+
+/* CAKE */
+#cake-section .intro-text{font-family:var(--script);font-size:1.4rem;font-style:italic;color:#dcd6cb;max-width:620px;margin-bottom:5.5rem;}
+.cake-wrap{position:relative;width:min(320px,70vw);cursor:pointer;user-select:none;padding-top:92px;}
+.cake{position:relative;width:100%;}
+.cake-plate{width:100%;height:14px;background:linear-gradient(180deg,rgba(233,213,168,.5),rgba(233,213,168,.05));border-radius:50%;filter:blur(1px);}
+.tier{width:78%;margin:0 auto;border-radius:10px 10px 4px 4px;position:relative;}
+.tier1{height:60px;background:linear-gradient(180deg,#2a2036,#180f22);margin-top:-6px;}
+.tier2{width:60%;height:52px;background:linear-gradient(180deg,#3a2740,#1f1428);margin-top:-4px;}
+.tier-icing{position:absolute;top:-6px;left:0;right:0;height:14px;background:radial-gradient(ellipse at top,#f5e6d3,#e9d5a8);border-radius:50%;opacity:.9;}
+.candles{position:absolute;top:-28px;left:50%;transform:translateX(-50%);display:flex;gap:14px;}
+.candle{width:5px;height:38px;background:linear-gradient(180deg,#e0b4a8,#a9756a);border-radius:3px;position:relative;}
+.flame{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:9px;height:16px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 50% 70%,#fff6d8,#ffb347 60%,#ff6a3d 100%);box-shadow:0 0 14px 4px rgba(255,170,80,.6);animation:flicker 1.1s ease-in-out infinite alternate;transform-origin:bottom center;}
+@keyframes flicker{0%{transform:translateX(-50%) rotate(-3deg) scale(1);}100%{transform:translateX(-50%) rotate(3deg) scale(1.08);}}
+.flame.out{opacity:0;transition:opacity .4s;}
+.wish-text{margin-top:3rem;font-family:var(--script);font-style:italic;font-size:1.6rem;color:var(--champagne);opacity:0;min-height:2rem;}
+.tap-note{margin-top:1.6rem;font-size:.68rem;letter-spacing:.25em;color:#8b8579;}
+
+/* MESSAGE */
+#message-section .glass-card{max-width:680px;width:100%;padding:4rem 2.6rem;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(14px);box-shadow:0 30px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);}
+#message-section h2{font-family:var(--script);font-style:italic;font-size:1.7rem;color:var(--rose);margin-bottom:2.2rem;}
+.reveal-line{font-family:var(--serif);font-size:clamp(1.1rem,2.6vw,1.55rem);font-weight:400;color:#efe9dd;line-height:1.9;opacity:0;transform:translateY(14px);margin-bottom:.4rem;}
+
+/* LETTER */
+#letter-section .letter-title{font-family:var(--script);font-style:italic;font-size:1.6rem;color:#dcd6cb;margin-bottom:3rem;}
+.envelope-wrap{position:relative;width:min(320px,75vw);aspect-ratio:3/2;cursor:pointer;perspective:1200px;}
+.envelope-body{position:absolute;inset:0;border-radius:6px;background:linear-gradient(160deg,#1c1420,#120a16);border:1px solid rgba(233,213,168,.25);box-shadow:0 25px 60px rgba(0,0,0,.55);overflow:hidden;}
+.envelope-flap{position:absolute;top:0;left:0;width:100%;height:55%;background:linear-gradient(160deg,#241a2c,#160d1c);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform 1s cubic-bezier(.6,0,.3,1);z-index:3;border-bottom:1px solid rgba(233,213,168,.15);}
+.envelope-wrap.open .envelope-flap{transform:rotateX(180deg);}
+.envelope-seal{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e0b4a8,#9c5b52);display:flex;align-items:center;justify-content:center;font-family:var(--script);font-style:italic;color:#2a1414;font-size:1.1rem;z-index:4;box-shadow:0 6px 14px rgba(0,0,0,.5);transition:opacity .4s,transform .4s;}
+.envelope-wrap.open .envelope-seal{opacity:0;transform:translate(-50%,-50%) scale(.5);}
+.envelope-label{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:.65rem;letter-spacing:.25em;color:var(--champagne);z-index:2;opacity:.8;}
+.letter-paper{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.4);width:min(560px,88vw);max-height:80vh;overflow-y:auto;padding:3.2rem 2.6rem;border-radius:8px;background:linear-gradient(170deg,#fbf6ec,#f1e8d6);color:#2c2418;box-shadow:0 50px 140px rgba(0,0,0,.7);opacity:0;pointer-events:none;z-index:200;font-family:var(--script);}
+.letter-paper.show{pointer-events:all;}
+.letter-paper h3{font-family:var(--serif);font-style:italic;font-size:1.4rem;margin-bottom:1.4rem;color:#7a4d43;}
+.letter-paper p{font-size:1.15rem;line-height:1.95;white-space:pre-line;}
+.letter-close{position:absolute;top:14px;right:18px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.2);background:transparent;cursor:pointer;color:#7a4d43;font-size:1rem;}
+.letter-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0);backdrop-filter:blur(0px);z-index:150;opacity:0;pointer-events:none;transition:background .5s,backdrop-filter .5s;}
+.letter-backdrop.show{background:rgba(0,0,0,.65);backdrop-filter:blur(6px);pointer-events:all;}
+
+/* FINAL */
+#final-section{background:radial-gradient(ellipse at center,#0e0a16,#020103);}
+.final-line{font-family:var(--script);font-style:italic;font-size:1.5rem;color:#cfc9be;opacity:0;margin-bottom:1rem;}
+.iloveyou{font-family:var(--serif);font-weight:700;letter-spacing:.04em;font-size:clamp(3rem,13vw,9rem);opacity:0;background:linear-gradient(90deg,var(--rose),var(--champagne),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 60px rgba(224,180,168,.4);}
+.final-name{margin-top:1.6rem;font-family:var(--script);font-style:italic;font-size:clamp(1.6rem,4vw,2.6rem);color:var(--champagne);opacity:0;}
+.final-sub{margin-top:1rem;font-family:var(--sans);font-size:.9rem;letter-spacing:.08em;color:#c7c1b6;opacity:0;}
+.heart-canvas-wrap{margin-top:3rem;opacity:0;font-family:var(--script);font-style:italic;font-size:1.4rem;color:var(--rose);}
+
+/* CANVASES */
+#fx-canvas{position:fixed;inset:0;z-index:500;pointer-events:none;width:100%;height:100%;}
+#confetti-canvas{position:fixed;inset:0;z-index:600;pointer-events:none;width:100%;height:100%;}
+#countdown-fx-canvas{position:fixed;inset:0;z-index:9996;pointer-events:none;width:100%;height:100%;display:none;}
+#countdown-fx-canvas.active{display:block;}
+
+/* ============================================================
+   🎵 MUSIC PILL PLAYER — ฝังเพลงจาก Code โดยตรง (ไม่ต้องอัปโหลด)
+============================================================ */
+#music-widget{
+  position:fixed;top:20px;right:20px;z-index:3000;
+  display:flex;align-items:center;gap:.7rem;
+  padding:.55rem .9rem .55rem .55rem;
+  border-radius:40px;
+  background:linear-gradient(160deg,rgba(30,22,26,.85),rgba(15,10,14,.9));
+  border:1px solid rgba(233,213,168,.18);
+  box-shadow:0 12px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter:blur(10px);
+  max-width:min(260px,60vw);
+}
+#music-toggle{
+  flex-shrink:0;width:38px;height:38px;border-radius:50%;
+  border:none;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#f2a3ab,#e0728a);
+  color:#2a0f16;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 14px rgba(224,114,138,.4);
+  transition:transform .25s;
+}
+#music-toggle:hover{transform:scale(1.06);}
+#music-toggle .icon-play{display:inline-block;}
+#music-toggle .icon-pause{display:none;}
+#music-toggle.playing .icon-play{display:none;}
+#music-toggle.playing .icon-pause{display:inline-block;}
+
+.music-info{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1;}
+.music-title{
+  font-family:var(--sans);font-size:.72rem;font-weight:500;
+  color:var(--champagne);letter-spacing:.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.music-progress-row{display:flex;align-items:center;gap:6px;}
+.music-progress-bar{
+  flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.12);
+  overflow:hidden;position:relative;
+}
+.music-progress-fill{
+  position:absolute;top:0;left:0;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--rose),var(--pink));
+  border-radius:4px;transition:width .2s linear;
+}
+.viz{display:flex;gap:2px;align-items:flex-end;height:12px;flex-shrink:0;}
+.viz span{width:2px;background:var(--pink);border-radius:1px;height:4px;}
+#music-toggle.playing ~ .music-info .viz span,
+.music-info .viz.playing span{animation:bar 1s ease-in-out infinite;}
+.viz span:nth-child(2){animation-delay:.15s;}
+.viz span:nth-child(3){animation-delay:.3s;}
+@keyframes bar{0%,100%{height:4px;}50%{height:12px;}}
+
+/* RESPONSIVE */
+@media (max-width:768px){
+  .section{padding:5vh 6vw;}
+  .glass-card{padding:2.6rem 1.6rem !important;}
+  .letter-paper{padding:2.2rem 1.4rem;}
+  .countdown-glow-ring{width:220px;height:220px;}
+  .countdown-num{width:220px;}
+  #cake-section .intro-text{margin-bottom:4.5rem;}
+  .cake-wrap{padding-top:80px;}
+  #music-widget{top:12px;right:12px;max-width:200px;padding:.45rem .7rem .45rem .45rem;}
+  #music-toggle{width:32px;height:32px;font-size:.8rem;}
+  .music-title{font-size:.62rem;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+}
+footer.credit{position:relative;z-index:2;padding:3rem 0;text-align:center;font-size:.65rem;letter-spacing:.2em;color:#5c5850;}
+</style>
+</head>
+<body>
+
+<div id="bg-universe"><canvas id="stars-canvas"></canvas></div>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing" data-label="OPEN"></div>
+
+<canvas id="fx-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+<canvas id="countdown-fx-canvas"></canvas>
+
+<!-- ================= 🎵 MUSIC PILL PLAYER (ฝังเพลงจาก Code) ================= -->
+<div id="music-widget">
+  <button id="music-toggle" aria-label="toggle music">
+    <span class="icon-play">▶</span>
+    <span class="icon-pause">❙❙</span>
+  </button>
+  <div class="music-info">
+    <span class="music-title" id="musicTitleText"></span>
+    <div class="music-progress-row">
+      <div class="music-progress-bar"><div class="music-progress-fill" id="musicProgressFill"></div></div>
+      <span class="viz" id="vizIcon"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+</div>
+<audio id="bgMusic" loop preload="auto"></audio>
+
+<!-- ================= OPENING ================= -->
+<div id="opening">
+  <div id="flash"></div>
+  <p class="open-sub" id="openSub">Someone made something special for you...</p>
+  <div class="tap-btn" id="tapBtn">
+    <div class="tap-ring"></div>
+    <div class="tap-ring d2"></div>
+    <span>TAP TO OPEN</span>
+  </div>
+</div>
+
+<!-- ================= 🔢 COUNTDOWN → NAME REVEAL ================= -->
+<div id="countdown-screen">
+  <div class="countdown-glow-ring" id="countdownRing"></div>
+  <div class="countdown-num" id="countdownNum">3</div>
+  <div class="reveal-name-wrap" id="revealNameWrap">
+    <p class="reveal-name-eyebrow">THIS UNIVERSE BELONGS TO</p>
+    <h2 class="reveal-name-text" id="revealNameText"></h2>
+    <div class="reveal-cta" id="revealCta">ENTER HER UNIVERSE →</div>
+  </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="section" id="hero">
+  <p class="eyebrow" data-reveal>A LITTLE UNIVERSE MADE FOR YOU</p>
+  <h1 data-reveal>HAPPY<br>BIRTHDAY</h1>
+  <p class="sub2" data-reveal>TO THE MOST SPECIAL PERSON IN MY WORLD</p>
+  <p class="her-name" id="heroName" data-reveal></p>
+  <div class="scroll-hint"><span>SCROLL</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- ================= CAKE ================= -->
+<section class="section" id="cake-section">
+  <p class="intro-text" data-scroll>ยินดีด้วยน้าอายุ 19 บริบูรณ์🕯️</p>
+  <div class="cake-wrap" id="cakeWrap" data-scroll>
+    <div class="cake">
+      <div class="candles" id="candles">
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+      </div>
+      <div class="tier tier2"><div class="tier-icing"></div></div>
+      <div class="tier tier1"><div class="tier-icing"></div></div>
+      <div class="cake-plate"></div>
+    </div>
+    <p class="tap-note">— แตะที่เค้กเพื่อเป่าเทียน —</p>
+  </div>
+  <p class="wish-text" id="wishText"></p>
+</section>
+
+<!-- ================= INTERACTIVE MESSAGE ================= -->
+<section class="section" id="message-section">
+  <div class="glass-card" data-scroll>
+    <h2>There is something I want you to know...</h2>
+    <div id="revealLines"></div>
+  </div>
+</section>
+
+<!-- ================= LOVE LETTER ================= -->
+<section class="section" id="letter-section">
+  <p class="letter-title" data-scroll>A Letter For You</p>
+  <div class="envelope-wrap" id="envelopeWrap" data-scroll>
+    <div class="envelope-body">
+      <div class="envelope-flap"></div>
+      <div class="envelope-seal">♡</div>
+      <div class="envelope-label">TAP TO OPEN</div>
+    </div>
+  </div>
+</section>
+<div class="letter-backdrop" id="letterBackdrop"></div>
+<div class="letter-paper" id="letterPaper">
+  <button class="letter-close" id="letterClose">✕</button>
+  <h3 id="letterGreeting"></h3>
+  <p id="letterBody"></p>
+</div>
+
+<!-- ================= FINAL SURPRISE ================= -->
+<section class="section" id="final-section">
+  <p class="final-line" id="finalWait">Wait... there's one more thing.</p>
+  <h2 class="iloveyou" id="finalLove">I LOVE YOU ❤</h2>
+  <p class="final-name" id="finalName"></p>
+  <p class="final-sub" id="finalSub">I hope I can celebrate every birthday with you.</p>
+  <p class="heart-canvas-wrap" id="foreverText">Forever yours ♡</p>
+</section>
+
+<footer class="credit">MADE WITH LOVE — JUST FOR YOU</footer>
+
+<script>
+/* ================================================================
+   ⚙️ 1. CONFIGURATION — แก้ไขได้จากจุดเดียวตรงนี้
+================================================================ */
+const birthdayConfig = {
+  girlfriendName: "นางสาวกัลยกร นันตะกุน",
+  nickname: "Toon",
+  birthday: "27 กันยายน",
+  loveLetterGreeting: "ถึงคนพิเศษของเค้า...",
+  loveLetter:
+`ในทุก ๆ วัน ที่ผ่านมา เค้ารู้สึกโชคดีเสมอ ที่มีเธออยู่ในชีวิต
+
+ขอบคุณที่เข้ามาเป็นส่วนหนึ่งของโลกใบเล็ก ๆ ของเค้า
+ขอบคุณสำหรับทุกเสียงหัวเราะ ทุกความห่วงใย
+และทุกช่วงเวลาที่ทำให้วันธรรมดาๆ กลายเป็นวันที่พิเศษ
+
+เค้าขอให้อ้วนมีความสุขมากๆ ในทุกวันเลยนะ
+ขอให้เรื่องร้ายๆผ่านไปไวๆและมีแต่เรื่องดีๆ
+เข้ามาในชีวิตขอให้อ้งนสุขภาพแข็งแรง ยิ้มเยอะ ๆ
+ไม่เครียดกับอะไรเกินไป และได้ทำในสิ่งที่ตัวเองชอบ
+และตั้งใจไว้ทุกอย่างเลยนะ 🥺❤️
+
+ขอบคุณที่เข้ามาเป็นคนสำคัญในชีวิตเค้า 
+ขอบคุณสำหรับทุกช่วงเวลาที่เราได้อยู่ด้วยกัน 
+ถึงบางครั้งเราอาจจะมีงอน มีทะเลาะกันบ้าง 
+แต่เค้าก็ยังอยากอยู่ข้างๆ เธอและจับมือกันไปเรื่อย ๆ นะ
+
+ขอให้ปีนี้เป็นปีที่ดีของอ้วน ขอให้ความฝันทุกอย่างค่อยๆ เป็นจริง 
+และถ้าวันไหนอ้วนเหนื่อย อย่าลืมว่ายังมีเค้าอยู่ตรงนี้เสมอนะงับ
+เค้าจะคอยอยู่ข้างๆ อ้วนเสมอนะงับ เค้าไม่ทิ้งอ้วนไปไหนแน่นอน
+ถึงเราจะอยู่ไกลกัน แต่เค้าจะคอยรัก คอยเป็นกำลังใจ 
+และอยู่ข้างเธอเท่าที่เค้าจะทำได้เลยนะ 🫶🏻
+
+สุขสันต์วันเกิดนะ ที่รัก
+รักเธอมากๆนะอ้วน ❤️ ขอให้เธอมีความสุขมากกว่าที่ผ่านมา และมีรอยยิ้มแบบนี้ไปนานๆ เลยนะ
+
+— ด้วยรักเสมอ`,
+
+  /* 🎵 เพลงฝังใน Code โดยตรง — ไม่ต้องให้ผู้ใช้เลือกไฟล์เอง
+     👉 นำไฟล์ mp3 จริงไปวางที่ path นี้: assets/music/รักหนิงหนิงๆ.mp3
+     👉 หรือเปลี่ยน path ให้ชี้ไปยังไฟล์เพลงอื่นที่ต้องการ */
+  music: "music/PUN รักให้เธอได้รู้ Proof.mp3",   // ⬅️ path ของไฟล์เพลง (mp3) ที่จะเล่น
+  musicTitle: "รักหนิงหนิงๆ"   // ⬅️ ชื่อเพลงที่แสดงบน Pill Player มุมขวาบน
+};
+
+/* ================================================================
+   2. UTIL
+================================================================ */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isTouch = window.matchMedia('(hover:none)').matches || 'ontouchstart' in window;
+gsap.registerPlugin(ScrollTrigger);
+
+document.getElementById('heroName').textContent = birthdayConfig.girlfriendName;
+document.getElementById('revealNameText').textContent = birthdayConfig.girlfriendName;
+document.getElementById('finalName').textContent = `Happy Birthday, ${birthdayConfig.girlfriendName}`;
+document.getElementById('letterGreeting').textContent = birthdayConfig.loveLetterGreeting;
+document.getElementById('letterBody').textContent = birthdayConfig.loveLetter;
+
+const music = document.getElementById('bgMusic');
+music.src = birthdayConfig.music;
+document.getElementById('musicTitleText').textContent = birthdayConfig.musicTitle;
+
+document.body.style.overflow = 'hidden';
+
+/* ================================================================
+   🎵 3. MUSIC PILL PLAYER LOGIC (Play/Pause + Progress bar + Visualizer)
+================================================================ */
+const musicBtn = document.getElementById('music-toggle');
+const vizIcon = document.getElementById('vizIcon');
+const progressFill = document.getElementById('musicProgressFill');
+let musicPlaying = false;
+
+function toggleMusic(forcePlay){
+  if (forcePlay || !musicPlaying){
+    music.play().then(()=>{
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+      vizIcon.classList.add('playing');
+    }).catch(()=>{ /* Browser block autoplay — จะเล่นได้ทันทีที่ผู้ใช้กดปุ่มเอง */ });
+  } else {
+    music.pause();
+    musicPlaying = false;
+    musicBtn.classList.remove('playing');
+    vizIcon.classList.remove('playing');
+  }
+}
+musicBtn.addEventListener('click', ()=> toggleMusic(false));
+
+// อัปเดตแถบ Progress ตามเวลาเพลงที่เล่นอยู่
+music.addEventListener('timeupdate', ()=>{
+  if (!music.duration) return;
+  const pct = (music.currentTime / music.duration) * 100;
+  progressFill.style.width = pct + '%';
+});
+
+/* ================================================================
+   4. STARFIELD CANVAS
+================================================================ */
+const starsCanvas = document.getElementById('stars-canvas');
+const sctx = starsCanvas.getContext('2d');
+let stars = [], shootingStars = [];
+function resizeStars(){ starsCanvas.width = window.innerWidth; starsCanvas.height = document.body.scrollHeight; }
+function initStars(){
+  resizeStars();
+  const count = isTouch ? 90 : 180;
+  stars = Array.from({length:count},()=>({
+    x:Math.random()*starsCanvas.width, y:Math.random()*starsCanvas.height,
+    r:Math.random()*1.4+.2, tw:Math.random()*Math.PI*2, speed:Math.random()*.015+.005
+  }));
+}
+function spawnShootingStar(){
+  if (reducedMotion) return;
+  shootingStars.push({x:Math.random()*starsCanvas.width*.7,y:Math.random()*starsCanvas.height*.3,len:Math.random()*120+80,speed:Math.random()*8+8,life:0,angle:Math.PI/5});
+}
+setInterval(spawnShootingStar, 4200);
+function drawStars(){
+  sctx.clearRect(0,0,starsCanvas.width,starsCanvas.height);
+  stars.forEach(s=>{
+    s.tw += s.speed;
+    const alpha = .4 + Math.sin(s.tw)*.35;
+    sctx.beginPath();
+    sctx.fillStyle = `rgba(245,242,236,${Math.max(alpha,.15)})`;
+    sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fill();
+  });
+  shootingStars.forEach((s,i)=>{
+    s.life++; s.x += Math.cos(s.angle)*s.speed; s.y += Math.sin(s.angle)*s.speed;
+    const grad = sctx.createLinearGradient(s.x,s.y,s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
+    grad.addColorStop(0,'rgba(255,255,255,.9)'); grad.addColorStop(1,'rgba(255,255,255,0)');
+    sctx.strokeStyle = grad; sctx.lineWidth = 1.4;
+    sctx.beginPath(); sctx.moveTo(s.x,s.y);
+    sctx.lineTo(s.x-Math.cos(s.angle)*s.len, s.y-Math.sin(s.angle)*s.len);
+    sctx.stroke();
+    if (s.life>90) shootingStars.splice(i,1);
+  });
+  requestAnimationFrame(drawStars);
+}
+initStars(); drawStars();
+window.addEventListener('resize', initStars);
+
+/* ================================================================
+   5. CUSTOM CURSOR
+================================================================ */
+if (!isTouch){
+  const dot = document.getElementById('cursorDot'), ring = document.getElementById('cursorRing');
+  let mx=0,my=0, rx=0, ry=0;
+  window.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+    spawnCursorParticle(mx,my);
+  });
+  function animRing(){ rx += (mx-rx)*0.15; ry += (my-ry)*0.15; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animRing); }
+  animRing();
+  document.querySelectorAll('.tap-btn,.cake-wrap,.envelope-wrap,#music-toggle,.reveal-cta').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>ring.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=>ring.classList.remove('hover'));
+  });
+}
+
+/* ================================================================
+   6. CURSOR PARTICLES + HEART BURST
+================================================================ */
+const fxCanvas = document.getElementById('fx-canvas');
+const fctx = fxCanvas.getContext('2d');
+function fitFxCanvas(){ fxCanvas.width=window.innerWidth; fxCanvas.height=window.innerHeight; }
+fitFxCanvas(); window.addEventListener('resize', fitFxCanvas);
+let fxParticles = [];
+const MAX_FX = isTouch ? 40 : 90;
+function spawnCursorParticle(x,y){
+  if (fxParticles.length > MAX_FX) return;
+  if (Math.random() > .35) return;
+  fxParticles.push({x,y,vy:-Math.random()*1-.4,vx:(Math.random()-.5)*.6,life:0,max:60,type:Math.random()>.5?'heart':'star',size:Math.random()*6+5});
+}
+function burstHearts(x,y,count=14){
+  for(let i=0;i<count;i++){
+    fxParticles.push({x,y,vx:(Math.random()-.5)*4,vy:-(Math.random()*4+1),life:0,max:70,type:i%2===0?'heart':'star',size:Math.random()*10+10,burst:true});
+  }
+}
+document.addEventListener('click', e=>{
+  if (e.target.closest('#tapBtn,#music-toggle,.letter-close,.reveal-cta')) return;
+  burstHearts(e.clientX, e.clientY);
+});
+function drawFx(){
+  fctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+  fxParticles.forEach((p,i)=>{
+    p.life++; p.x += p.vx; p.y += p.vy;
+    if (p.burst) p.vy += .06;
+    const alpha = 1 - p.life/p.max;
+    fctx.globalAlpha = Math.max(alpha,0);
+    fctx.font = `${p.size}px serif`;
+    fctx.fillStyle = p.type==='heart' ? '#e0b4a8' : '#e9d5a8';
+    fctx.fillText(p.type==='heart'?'♡':'✦', p.x, p.y);
+    if (p.life>p.max) fxParticles.splice(i,1);
+  });
+  fctx.globalAlpha=1;
+  requestAnimationFrame(drawFx);
+}
+drawFx();
+
+/* ================================================================
+   7. CONFETTI
+================================================================ */
+const confettiCanvas = document.getElementById('confetti-canvas');
+const cctx = confettiCanvas.getContext('2d');
+function fitConfetti(){ confettiCanvas.width=window.innerWidth; confettiCanvas.height=window.innerHeight; }
+fitConfetti(); window.addEventListener('resize', fitConfetti);
+let confetti = [];
+const colors = ['#e9d5a8','#e0b4a8','#f5f2ec','#e8b9c4'];
+function launchConfetti(count=90){
+  for(let i=0;i<count;i++){
+    confetti.push({x:Math.random()*confettiCanvas.width,y:-20-Math.random()*200,vx:(Math.random()-.5)*3,vy:Math.random()*2+2,size:Math.random()*6+4,rot:Math.random()*360,vr:(Math.random()-.5)*8,color:colors[Math.floor(Math.random()*colors.length)],life:0});
+  }
+}
+function drawConfetti(){
+  cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  confetti.forEach((c,i)=>{
+    c.life++; c.x+=c.vx; c.y+=c.vy; c.rot+=c.vr;
+    cctx.save(); cctx.translate(c.x,c.y); cctx.rotate(c.rot*Math.PI/180);
+    cctx.globalAlpha = Math.max(1-c.life/260,0);
+    cctx.fillStyle=c.color; cctx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.4);
+    cctx.restore();
+    if (c.y>confettiCanvas.height+40 || c.life>260) confetti.splice(i,1);
+  });
+  requestAnimationFrame(drawConfetti);
+}
+drawConfetti();
+
+/* ================================================================
+   8. COUNTDOWN SPARK CANVAS
+================================================================ */
+const cdCanvas = document.getElementById('countdown-fx-canvas');
+const cdctx = cdCanvas.getContext('2d');
+function fitCdCanvas(){ cdCanvas.width=window.innerWidth; cdCanvas.height=window.innerHeight; }
+fitCdCanvas(); window.addEventListener('resize', fitCdCanvas);
+let cdParticles = [];
+function spawnCdBurst(cx, cy, count){
+  for(let i=0;i<count;i++){
+    const angle = Math.random()*Math.PI*2, speed = Math.random()*4+1.5;
+    cdParticles.push({x:cx,y:cy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:0,max:Math.random()*70+50,size:Math.random()*3+1.4,type:Math.random()>.65?'heart':'dot',hue:Math.random()>.5?'#e9d5a8':'#e0b4a8'});
+  }
+}
+function drawCdFx(){
+  cdctx.clearRect(0,0,cdCanvas.width,cdCanvas.height);
+  cdParticles.forEach((p,i)=>{
+    p.life++; p.x+=p.vx; p.y+=p.vy; p.vx*=.98; p.vy*=.98;
+    const alpha = Math.max(1-p.life/p.max,0);
+    cdctx.globalAlpha = alpha;
+    if (p.type==='heart'){ cdctx.font = `${p.size*6}px serif`; cdctx.fillStyle = p.hue; cdctx.fillText('♡', p.x, p.y); }
+    else{ cdctx.beginPath(); cdctx.fillStyle = p.hue; cdctx.arc(p.x,p.y,p.size,0,Math.PI*2); cdctx.shadowColor=p.hue; cdctx.shadowBlur=8; cdctx.fill(); }
+    if (p.life>p.max) cdParticles.splice(i,1);
+  });
+  cdctx.globalAlpha=1;
+  requestAnimationFrame(drawCdFx);
+}
+drawCdFx();
+
+/* ================================================================
+   9. OPENING SEQUENCE + MUSIC AUTOSTART ON TAP
+================================================================ */
+gsap.to('#openSub', {opacity:1, duration:1.4, delay:.6});
+gsap.to('#tapBtn', {opacity:1, duration:1.2, delay:1.4});
+
+document.getElementById('tapBtn').addEventListener('click', ()=>{
+  const flash = document.getElementById('flash');
+  gsap.to(flash, {opacity:1, duration:.15, onComplete:()=>{ gsap.to(flash, {opacity:0, duration:.6}); }});
+  toggleMusic(true); // ▶️ เพลงเริ่มเล่นทันทีตอนกด TAP TO OPEN
+  gsap.to('#opening', {opacity:0, duration:.9, delay:.3, onComplete:()=>{
+    document.getElementById('opening').classList.add('hidden');
+    playCountdownReveal();
+  }});
+});
+
+/* ================================================================
+   🔢 10. COUNTDOWN → NAME REVEAL (ทุกเลข 1 วินาทีเท่ากันเป๊ะ)
+================================================================ */
+function playCountdownReveal(){
+  const screen = document.getElementById('countdown-screen');
+  const cdCanvasEl = document.getElementById('countdown-fx-canvas');
+  const numEl = document.getElementById('countdownNum');
+  const ring = document.getElementById('countdownRing');
+  const nameWrap = document.getElementById('revealNameWrap');
+  const cta = document.getElementById('revealCta');
+
+  screen.classList.add('active');
+  cdCanvasEl.classList.add('active');
+
+  const numbers = ['3','2','1'];
+  const tl = gsap.timeline();
+
+  numbers.forEach((n)=>{
+    tl.call(()=>{
+        numEl.textContent = n;
+        spawnCdBurst(window.innerWidth/2, window.innerHeight/2, 18);
+      })
+      .fromTo(numEl, {opacity:0, scale:.5, filter:'blur(8px)'},
+        {opacity:1, scale:1, filter:'blur(0px)', duration:.25, ease:'back.out(2)'})
+      .to(ring, {scale:1.12, duration:.25, ease:'power2.out'}, '<')
+      .to({}, {duration:.5})
+      .to(numEl, {opacity:0, scale:1.3, filter:'blur(5px)', duration:.25, ease:'power2.in'})
+      .to(ring, {scale:1, duration:.25}, '<');
+  });
+
+  tl.call(()=>{
+      spawnCdBurst(window.innerWidth/2, window.innerHeight/2, 70);
+      launchConfetti(60);
+      burstHearts(window.innerWidth/2, window.innerHeight/2, 20);
+      gsap.to(ring, {opacity:0, scale:1.8, duration:1, ease:'power2.out'});
+    })
+    .fromTo(nameWrap, {opacity:0, scale:.75, filter:'blur(14px)'},
+      {opacity:1, scale:1, filter:'blur(0px)', duration:1.3, ease:'power4.out'})
+    .to('.reveal-name-text', {backgroundPosition:'200% center', duration:5, repeat:-1, ease:'linear'}, '<')
+    .call(()=>{
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      [0,1,2,3].forEach(i=>{
+        gsap.delayedCall(i*.5, ()=> spawnCdBurst(cx + (Math.random()-.5)*300, cy + (Math.random()-.5)*120, 8));
+      });
+    })
+    .to(cta, {opacity:1, duration:1}, '+=.6');
+
+  cta.addEventListener('click', enterMainSite, {once:true});
+}
+
+function enterMainSite(){
+  const screen = document.getElementById('countdown-screen');
+  const cdCanvasEl = document.getElementById('countdown-fx-canvas');
+  burstHearts(window.innerWidth/2, window.innerHeight/2, 24);
+  gsap.to(screen, {opacity:0, duration:1, onComplete:()=>{
+    screen.classList.remove('active');
+    cdCanvasEl.classList.remove('active');
+    screen.style.opacity = '';
+    document.body.style.overflow = 'auto';
+    playHeroIntro();
+  }});
+}
+
+/* ================================================================
+   11. HERO INTRO
+================================================================ */
+function playHeroIntro(){
+  gsap.fromTo('#hero [data-reveal]', {opacity:0, y:30, filter:'blur(6px)'},
+    {opacity:1, y:0, filter:'blur(0px)', duration:1.1, stagger:.25, ease:'power3.out'});
+  gsap.to('#hero h1',{backgroundPosition:'200% center', duration:6, repeat:-1, ease:'linear'});
+}
+
+/* ================================================================
+   12. SCROLL REVEAL
+================================================================ */
+document.querySelectorAll('[data-scroll]').forEach(el=>{
+  gsap.fromTo(el, {opacity:0, y:50, filter:'blur(8px)'},{
+    opacity:1, y:0, filter:'blur(0px)', duration:1.2, ease:'power3.out',
+    scrollTrigger:{trigger:el, start:'top 82%'}
+  });
+});
+
+/* ================================================================
+   🎂 13. CAKE INTERACTION
+================================================================ */
+const cakeWrap = document.getElementById('cakeWrap');
+const wishText = document.getElementById('wishText');
+let cakeBlown = false;
+cakeWrap.addEventListener('click', ()=>{
+  if (cakeBlown) return;
+  cakeBlown = true;
+  document.querySelectorAll('.flame').forEach((f,i)=>{ gsap.to(f,{opacity:0, duration:.4, delay:i*.15}); });
+  gsap.to('body',{filter:'brightness(.75)', duration:.5, yoyo:true, repeat:1});
+  launchConfetti(70);
+  burstHearts(window.innerWidth/2, window.innerHeight*0.4);
+  gsap.timeline()
+    .to(wishText,{text:'Make a wish...', opacity:1, duration:.2, delay:.3})
+    .to(wishText,{opacity:0, duration:.6, delay:1.6})
+    .to(wishText,{text:'I hope all your wishes come true.', opacity:1, duration:.2})
+    .to(wishText,{opacity:.85, duration:.4});
+});
+cakeWrap.addEventListener('mouseenter', ()=>{ if (!cakeBlown) burstHearts(window.innerWidth/2, window.innerHeight*0.42); });
+
+/* ================================================================
+   14. LINE REVEAL — MESSAGE
+================================================================ */
+const messageLines = [
+  "ในวันเกิดของเธอ","เค้าอยากให้เธอรู้ว่า...","ขอบคุณที่เข้ามาเป็นส่วนหนึ่งในชีวิตเค้า",
+  "ขอบคุณสำหรับทุกเสียงหัวเราะ","ทุกช่วงเวลาที่อยู่ด้วยกัน","และทุกวันที่ทำให้โลกของเค้าพิเศษขึ้น"
+];
+const revealContainer = document.getElementById('revealLines');
+messageLines.forEach(line=>{
+  const p = document.createElement('p');
+  p.className = 'reveal-line'; p.textContent = line;
+  revealContainer.appendChild(p);
+});
+ScrollTrigger.create({
+  trigger:'#message-section', start:'top 60%', once:true,
+  onEnter:()=>{ gsap.to('.reveal-line', {opacity:1, y:0, duration:.9, stagger:.55, ease:'power2.out'}); }
+});
+
+/* ================================================================
+   💌 15. LOVE LETTER
+================================================================ */
+const envelopeWrap = document.getElementById('envelopeWrap');
+const letterPaper = document.getElementById('letterPaper');
+const letterBackdrop = document.getElementById('letterBackdrop');
+envelopeWrap.addEventListener('click', ()=>{
+  envelopeWrap.classList.add('open');
+  burstHearts(window.innerWidth/2, window.innerHeight/2);
+  setTimeout(()=>{
+    letterBackdrop.classList.add('show'); letterPaper.classList.add('show');
+    gsap.fromTo(letterPaper, {scale:.4, opacity:0, y:40},{scale:1, opacity:1, y:0, duration:.8, ease:'back.out(1.4)'});
+  }, 550);
+});
+function closeLetter(){
+  gsap.to(letterPaper, {scale:.4, opacity:0, duration:.5, onComplete:()=>{
+    letterPaper.classList.remove('show'); letterBackdrop.classList.remove('show'); envelopeWrap.classList.remove('open');
+  }});
+}
+document.getElementById('letterClose').addEventListener('click', closeLetter);
+letterBackdrop.addEventListener('click', closeLetter);
+
+/* ================================================================
+   🎁 16. FINAL SURPRISE
+================================================================ */
+ScrollTrigger.create({
+  trigger:'#final-section', start:'top 55%', once:true,
+  onEnter:()=>{
+    const tl = gsap.timeline();
+    tl.to('#finalWait',{opacity:1, duration:1})
+      .to('#finalWait',{opacity:0, duration:.8, delay:1.4})
+      .call(()=>{ launchConfetti(140); burstHearts(window.innerWidth/2, window.innerHeight/2, 22); })
+      .fromTo('#finalLove',{opacity:0, scale:.7},{opacity:1, scale:1, duration:1, ease:'back.out(1.6)'})
+      .to('#finalName',{opacity:1, duration:1}, '+=.3')
+      .to('#finalSub',{opacity:1, duration:1}, '+=.2')
+      .call(()=>{ launchConfetti(90); })
+      .to('#foreverText',{opacity:1, duration:1.2}, '+=.4');
+  }
+});
+
+/* ================================================================
+   17. RESIZE
+================================================================ */
+window.addEventListener('load', ()=> setTimeout(initStars, 400));
+document.documentElement.style.maxWidth = '100vw';
+</script>
+</body>
+</html>
